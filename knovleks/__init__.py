@@ -191,3 +191,8 @@ class Knovleks:
             parameters.append(f"{limit}")
             query += " LIMIT ?"
         yield from self.db_con.execute(query, parameters)
+
+    def href_exists(self, href: str) -> bool:
+        cur = self.db_con.cursor()
+        cur.execute("SELECT href FROM documents WHERE href=?;", (href, ))
+        return cur.fetchone() is not None
