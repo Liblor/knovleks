@@ -7,7 +7,7 @@ import click
 from typing import Mapping, Type, Tuple, Optional
 from .knovleks import Knovleks, SearchSnipOptions
 from .document_types import NoteDocument, PdfDocument, WebsiteDocument
-from .idocument_type import *
+from .idocument_type import IdocumentType
 
 
 class bcolors:
@@ -25,11 +25,13 @@ class bcolors:
 def get_terminal_columns():
     return shutil.get_terminal_size().columns
 
+
 def print_autobreak(*args, sep=' '):
     width = get_terminal_columns()
     for line in sep.join(map(str, args)).splitlines(True):
         print(*textwrap.wrap(line, width, initial_indent='    ',
-            subsequent_indent='    '), sep="\n")
+              subsequent_indent='    '), sep="\n")
+
 
 def get_supported_document_types() -> Mapping[str, Type[IdocumentType]]:
     # TODO: make modular
@@ -39,11 +41,13 @@ def get_supported_document_types() -> Mapping[str, Type[IdocumentType]]:
         "website": WebsiteDocument
     }
 
+
 @click.group(context_settings=dict(help_option_names=["-h", "--help"]))
 @click.pass_context
 def cli(ctx):
     supported_types = get_supported_document_types()
     ctx.obj = Knovleks(supported_types)
+
 
 @click.command(help="")
 @click.argument("document")
@@ -51,8 +55,10 @@ def cli(ctx):
 @click.option("--title", default="")
 @click.option("-d", "--type", "--document-type", default="note")
 @click.pass_obj
-def index(knov: Knovleks, document: str, tag: Tuple[str], title: str, type: str):
+def index(knov: Knovleks, document: str, tag: Tuple[str],
+          title: str, type: str):
     knov.index_document(type, document, title, set(tag))
+
 
 @click.command(help="full-text search")
 @click.argument("query")
@@ -75,6 +81,7 @@ def search(knov: Knovleks, query: str, tag: Tuple[str], show_tags: bool,
             print(f"tags: {bcolors.OKCYAN}{returned_tags}{bcolors.ENDC}")
         print_autobreak(result[3])
         print()
+
 
 @click.command(help="tag filter")
 @click.argument("tag", nargs=-1)

@@ -188,7 +188,7 @@ class TestKnovleks(unittest.TestCase):
 
     def test_search_snip(self):
         self.test__upsert_doc_3_elem()
-        so = SearchSnipOptions("<b>","</b>")
+        so = SearchSnipOptions("<b>", "</b>")
         result = list(self.k.search("shine", snip=so))
         self.assertEqual(len(result), 2)
         self.assertTrue(result[0][3].find("<b>") >= 0)

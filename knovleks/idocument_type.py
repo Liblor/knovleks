@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import subprocess
+
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from collections.abc import Sequence

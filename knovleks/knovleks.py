@@ -2,7 +2,7 @@
 import sqlite3
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Set, Optional, Sequence, List, Generator
+from typing import Set, Optional, List, Generator, Any
 
 from .idocument_type import IdocumentType
 
@@ -195,7 +195,7 @@ class Knovleks:
         if snip is None: return "dpf.doccontent"
         parameters.extend(
             (snip.left, snip.right, snip.trunc_text, f"{snip.token_nr}"))
-        return f"snippet(doc_parts_fts, 0, ?, ?, ?, ?)"
+        return "snippet(doc_parts_fts, 0, ?, ?, ?, ?)"
 
     def search(self, search_query: str, tags: Set[str] = set(),
                limit: Optional[int] = None,
