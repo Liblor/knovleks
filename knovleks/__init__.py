@@ -177,11 +177,9 @@ class Knovleks:
              "JOIN doc_tag dt ON t.id = dt.tag_id AND dt.doc_id = d.id ")
         return q
 
-
     def search(self, search_query: str, tags: Sequence[str] = (),
                limit: Optional[int] = None):
         parameters = []
-        tag_query = self._join_tag_query(tags)
         query = ("SELECT DISTINCT href, elem_idx, title, dpf.doccontent "
                  "FROM doc_parts dp, doc_parts_fts dpf, documents d "
                  f"{self._join_tag_query(tags)}"

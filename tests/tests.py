@@ -188,7 +188,8 @@ class TestKnovleks(unittest.TestCase):
     def test_search_tags(self):
         self.test__upsert_doc_3_elem()
         self.assertEqual(len(list(self.k.search("shine", tags=("roman",)))), 1)
-        self.assertEqual(len(list(self.k.search("shine", tags=("roman","excerpt")))), 2)
+        self.assertEqual(
+            len(list(self.k.search("shine", tags=("roman", "excerpt")))), 2)
         self.assertEqual(len(list(self.k.search("swim", tags=("non",)))), 0)
 
 
