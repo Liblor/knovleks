@@ -76,9 +76,27 @@ def search(knov: Knovleks, query: str, tag: Tuple[str], show_tags: bool,
         print_autobreak(result[3])
         print()
 
+@click.command(help="tag filter")
+@click.argument("tag", nargs=-1)
+@click.option("-st", "--show-tags", is_flag=True, default=False)
+@click.option("-l", "--limit", type=int)
+@click.option("-dt", "--doc-type")
+@click.pass_obj
+def tag_filter(knov: Knovleks, tag: Tuple[str], show_tags: bool,
+               limit: Optional[int], doc_type: Optional[str]):
+    sq = knov.filter_by_tags(set(tag), limit=limit, doc_type=doc_type)
+    for result in sq:
+        href = result[0]
+        print(f"{bcolors.OKGREEN}{href}{bcolors.ENDC}")
+        if show_tags:
+            returned_tags = ', '.join(knov.get_tags_by_href(href))
+            print(f"tags: {bcolors.OKCYAN}{returned_tags}{bcolors.ENDC}")
+        print()
+
 
 cli.add_command(index)
 cli.add_command(search)
+cli.add_command(tag_filter)
 
 if __name__ == '__main__':
     cli()

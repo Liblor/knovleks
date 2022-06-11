@@ -200,7 +200,7 @@ class Knovleks:
     def search(self, search_query: str, tags: Set[str] = set(),
                limit: Optional[int] = None,
                doc_type: Optional[str] = None,
-               snip: Optional[SearchSnipOptions] = None):
+               snip: Optional[SearchSnipOptions] = None) -> Generator:
         parameters: List[str] = []
         filter_doc_type = ""
         content_col = self._content_column_snippet(parameters, snip)
@@ -215,6 +215,24 @@ class Knovleks:
                  f"{filter_doc_type} "
                  "dpf.doccontent MATCH ? ORDER BY rank")
         parameters.append(search_query)
+        if limit is not None:
+            parameters.append(f"{limit}")
+            query += " LIMIT ?"
+        yield from self.db_con.execute(query, parameters)
+
+    def filter_by_tags(self, tags: Set[str], limit: Optional[int] = None,
+                       doc_type: Optional[str] = None) -> Generator:
+        parameters: List[Any] = []
+        parameters.extend(tags)
+        filter_doc_type = ""
+        if doc_type is not None:
+            parameters.append(doc_type)
+            filter_doc_type = "WHERE d.type = ?"
+        parameters.append(len(tags))
+        query = ("SELECT href, title "
+                 f"FROM  documents d {self._join_tag_query(tags)}"
+                 f"{filter_doc_type} "
+                 "GROUP BY d.id HAVING COUNT(d.id) = ?")
         if limit is not None:
             parameters.append(f"{limit}")
             query += " LIMIT ?"

@@ -206,6 +206,15 @@ class TestKnovleks(unittest.TestCase):
         self.assertTrue(self.k.href_exists(self.docs[0].href))
         self.assertFalse(self.k.href_exists("nono"))
 
+    def test_filter_by_tags(self):
+        self.test__upsert_doc_3_elem()
+        r = len(list(self.k.filter_by_tags({"roman", "excerpt"})))
+        self.assertEqual(r, 1)
+        r = len(list(self.k.filter_by_tags({"excerpt", "no"})))
+        self.assertEqual(r, 0)
+        r = len(list(self.k.filter_by_tags({"excerpt"})))
+        self.assertEqual(r, 2)
+
 
 if __name__ == '__main__':
     unittest.main()
