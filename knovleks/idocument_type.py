@@ -15,7 +15,7 @@ class DocPart:
 @dataclass  # type: ignore[misc]
 class IdocumentType(ABC):
     href: str
-    title: str
+    title: str = ""
     doc_type: str = ""
     tags: Set[str] = field(default_factory=lambda: set())
     metadata: Mapping[str, str] = field(default_factory=lambda: {})
@@ -28,6 +28,5 @@ class IdocumentType(ABC):
     def parse(self):
         raise NotImplementedError
 
-    @abstractmethod
     def open_doc(self):
-        raise NotImplementedError
+        subprocess.run(["xdg-open", f"{self.href}"])

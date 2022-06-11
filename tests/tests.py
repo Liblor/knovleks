@@ -1,7 +1,7 @@
 import unittest
 from collections import defaultdict
 
-from context import knovleks, DocPart
+from context import Knovleks, SearchSnipOptions, IdocumentType, DocPart
 
 
 THE_LOVELY_LADY = """The walls of the Wonderful House rose up straight and
@@ -17,7 +17,7 @@ toward the increasing light and tap-tap of the Princess’ feet along the
 halls."""
 
 
-class DocumentTypeMock(knovleks.IdocumentType):
+class DocumentTypeMock(IdocumentType):
     def parse(self):
         pass
 
@@ -55,7 +55,7 @@ class TestKnovleks(unittest.TestCase):
                 parts=[DocPart("This is some random text.", 1),
                        DocPart("The weather is great for swimming.", 2)])
         ]
-        self.k = knovleks.Knovleks(defaultdict(DocumentTypeMock), ":memory:")
+        self.k = Knovleks(defaultdict(DocumentTypeMock), ":memory:")
 
     def get_id_tags(self):
         cur = self.k.db_con.cursor()
@@ -183,14 +183,22 @@ class TestKnovleks(unittest.TestCase):
         self.test__upsert_doc_3_elem()
         self.assertEqual(len(list(self.k.search("shine"))), 2)
         self.assertEqual(len(list(self.k.search("shine", limit=1))), 1)
-        self.assertEqual(len(list(self.k.search("swim"))), 2)
+        self.assertEqual(len(list(self.k.search("swim", ))), 2)
+        self.assertEqual(len(list(self.k.search("swim", doc_type='pdf'))), 1)
+
+    def test_search_snip(self):
+        self.test__upsert_doc_3_elem()
+        so = SearchSnipOptions("<b>","</b>")
+        result = list(self.k.search("shine", snip=so))
+        self.assertEqual(len(result), 2)
+        self.assertTrue(result[0][3].find("<b>") >= 0)
 
     def test_search_tags(self):
         self.test__upsert_doc_3_elem()
-        self.assertEqual(len(list(self.k.search("shine", tags=("roman",)))), 1)
+        self.assertEqual(len(list(self.k.search("shine", tags={"roman"}))), 1)
         self.assertEqual(
-            len(list(self.k.search("shine", tags=("roman", "excerpt")))), 2)
-        self.assertEqual(len(list(self.k.search("swim", tags=("non",)))), 0)
+            len(list(self.k.search("shine", tags={"roman", "excerpt"}))), 2)
+        self.assertEqual(len(list(self.k.search("swim", tags={"non"}))), 0)
 
     def test_href_exists(self):
         self.assertFalse(self.k.href_exists(self.docs[0].href))
