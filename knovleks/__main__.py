@@ -66,10 +66,12 @@ def index(knov: Knovleks, document: str, tag: Tuple[str],
 @click.option("-st", "--show-tags", is_flag=True, default=False)
 @click.option("-l", "--limit", type=int)
 @click.option("-dt", "--doc-type")
+@click.option("-ft", "--full-text", is_flag=True, default=False,
+              help="display full text")
 @click.pass_obj
 def search(knov: Knovleks, query: str, tag: Tuple[str], show_tags: bool,
-           limit: Optional[int], doc_type: Optional[str]):
-    so = SearchSnipOptions(bcolors.OKBLUE, bcolors.ENDC)
+           limit: Optional[int], doc_type: Optional[str], full_text: bool):
+    so = None if full_text else SearchSnipOptions(bcolors.OKBLUE, bcolors.ENDC)
     sq = knov.search(query, set(tag), limit=limit, doc_type=doc_type, snip=so)
     for result in sq:
         href = result[0]

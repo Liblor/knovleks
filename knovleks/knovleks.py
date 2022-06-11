@@ -202,17 +202,19 @@ class Knovleks:
                doc_type: Optional[str] = None,
                snip: Optional[SearchSnipOptions] = None) -> Generator:
         parameters: List[str] = []
-        filter_doc_type = ""
+        filter_doc_type = group_by_inner = ""
         content_col = self._content_column_snippet(parameters, snip)
         parameters.extend(tags)
         if doc_type is not None:
             parameters.append(doc_type)
-            filter_doc_type = "d.type = ? AND"
-        query = (f"SELECT DISTINCT href, elem_idx, title, {content_col} "
-                 "FROM doc_parts dp, doc_parts_fts dpf, documents d "
-                 f"{self._join_tag_query(tags)}"
+            filter_doc_type = "WHERE d.type = ?"
+        if len(tags) > 0:
+            group_by_inner = f"GROUP BY d.id HAVING COUNT(d.id) = {len(tags)}"
+        query = (f"SELECT DISTINCT href, elem_idx, title, {content_col} FROM "
+                 f"(SELECT * FROM documents d {self._join_tag_query(tags)}"
+                 f" {filter_doc_type} {group_by_inner}) d, "
+                 "doc_parts dp, doc_parts_fts dpf "
                  "WHERE dpf.rowid = dp.id AND dp.doc_id = d.id AND "
-                 f"{filter_doc_type} "
                  "dpf.doccontent MATCH ? ORDER BY rank")
         parameters.append(search_query)
         if limit is not None:
