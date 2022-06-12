@@ -8,6 +8,7 @@ from typing import Mapping, Type, Tuple, Optional
 from .knovleks import Knovleks, SearchSnipOptions
 from .document_types import NoteDocument, PdfDocument, WebsiteDocument
 from .idocument_type import IdocumentType
+from .tui import KnovTui
 
 
 class bcolors:
@@ -103,9 +104,16 @@ def tag_filter(knov: Knovleks, tag: Tuple[str], show_tags: bool,
         print()
 
 
+@click.command(help="terminal user interface (experimental)")
+@click.pass_obj
+def tui(knov: Knovleks):
+    KnovTui.run(knovleks=knov, title=f"{__name__}")
+
+
 cli.add_command(index)
 cli.add_command(search)
 cli.add_command(tag_filter)
+cli.add_command(tui)
 
 if __name__ == '__main__':
     cli()

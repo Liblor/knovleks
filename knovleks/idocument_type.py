@@ -30,5 +30,7 @@ class IdocumentType(ABC):
     def parse(self):
         raise NotImplementedError
 
-    def open_doc(self):
-        subprocess.run(["xdg-open", f"{self.href}"])
+    @staticmethod
+    def open_doc(href, elem_idx):
+        subprocess.Popen(["/usr/bin/xdg-open", f"{href}"], kstdin=None,
+                         stdout=None, stderr=None, close_fds=True)

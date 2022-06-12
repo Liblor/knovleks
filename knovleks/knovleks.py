@@ -210,7 +210,8 @@ class Knovleks:
             filter_doc_type = "WHERE d.type = ?"
         if len(tags) > 0:
             group_by_inner = f"GROUP BY d.id HAVING COUNT(d.id) = {len(tags)}"
-        query = (f"SELECT DISTINCT href, elem_idx, title, {content_col} FROM "
+        query = (f"SELECT DISTINCT href, elem_idx, title, {content_col}, "
+                 "type FROM "
                  f"(SELECT * FROM documents d {self._join_tag_query(tags)}"
                  f" {filter_doc_type} {group_by_inner}) d, "
                  "doc_parts dp, doc_parts_fts dpf "
@@ -222,6 +223,9 @@ class Knovleks:
             query += " LIMIT ?"
         yield from self.db_con.execute(query, parameters)
 
+    def open_document(self, doc_type, href, elem_idx):
+        self.supported_types[doc_type].open_doc(href, elem_idx)
+
     def filter_by_tags(self, tags: Set[str], limit: Optional[int] = None,
                        doc_type: Optional[str] = None) -> Generator:
         parameters: List[Any] = []
@@ -231,7 +235,7 @@ class Knovleks:
             parameters.append(doc_type)
             filter_doc_type = "WHERE d.type = ?"
         parameters.append(len(tags))
-        query = ("SELECT href, title "
+        query = ("SELECT href, title, type "
                  f"FROM  documents d {self._join_tag_query(tags)}"
                  f"{filter_doc_type} "
                  "GROUP BY d.id HAVING COUNT(d.id) = ?")
