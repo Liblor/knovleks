@@ -16,5 +16,5 @@ class PdfDocument(IdocumentType):
     @staticmethod
     def open_doc(href, elem_idx):
         dn = subprocess.DEVNULL
-        subprocess.Popen(["/usr/bin/zathura", f"{href}", f"-P", f"{elem_idx}"],
-             stdin=dn, stdout=dn, stderr=dn, close_fds=True)
+        subprocess.Popen(["/usr/bin/zathura", f"{href}", "-P", f"{elem_idx}"],
+                         stdin=dn, stdout=dn, stderr=dn, close_fds=True)

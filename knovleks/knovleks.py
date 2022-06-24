@@ -197,6 +197,10 @@ class Knovleks:
             (snip.left, snip.right, snip.trunc_text, f"{snip.token_nr}"))
         return "snippet(doc_parts_fts, 0, ?, ?, ?, ?)"
 
+    def _quote_string(self, string: str) -> str:
+        string = string.replace('"', '""')
+        return f'"{string}"'
+
     def search(self, search_query: str, tags: Set[str] = set(),
                limit: Optional[int] = None,
                doc_type: Optional[str] = None,
@@ -218,10 +222,17 @@ class Knovleks:
                  "WHERE dpf.rowid = dp.id AND dp.doc_id = d.id AND "
                  "dpf.doccontent MATCH ? ORDER BY rank")
         parameters.append(search_query)
+        search_query_idx = len(parameters) - 1
         if limit is not None:
             parameters.append(f"{limit}")
             query += " LIMIT ?"
-        yield from self.db_con.execute(query, parameters)
+        try:
+            # use fts syntax
+            yield from self.db_con.execute(query, parameters)
+        except sqlite3.OperationalError:
+            parameters[search_query_idx] = self._quote_string(search_query)
+            print(parameters[search_query_idx])
+            yield from self.db_con.execute(query, parameters)
 
     def open_document(self, doc_type, href, elem_idx):
         self.supported_types[doc_type].open_doc(href, elem_idx)

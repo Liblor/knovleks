@@ -43,6 +43,23 @@ def get_supported_document_types() -> Mapping[str, Type[IdocumentType]]:
     }
 
 
+def is_url(path: str) -> bool:
+    url_prefixes = ["https://", "http://"]
+    path = path.lower()
+    return any(map(path.startswith, url_prefixes))
+
+
+def determine_doc_type(document: str) -> str:
+    # TODO: determine ooc based on configuration file
+    if is_url(document):
+        return "website"
+    # XXX: filetype shouldn't be determined based on extension
+    elif document.endswith(".pdf"):
+        return "pdf"
+    else:
+        return "note"
+
+
 @click.group(context_settings=dict(help_option_names=["-h", "--help"]))
 @click.pass_context
 def cli(ctx):
@@ -54,10 +71,12 @@ def cli(ctx):
 @click.argument("document")
 @click.option("-t", "--tag", multiple=True)
 @click.option("--title", default="")
-@click.option("-d", "--type", "--document-type", default="note")
+@click.option("-d", "--type", "--document-type", default="auto")
 @click.pass_obj
 def index(knov: Knovleks, document: str, tag: Tuple[str],
           title: str, type: str):
+    if type == "auto":
+        type = determine_doc_type(document)
     knov.index_document(type, document, title, set(tag))
 
 
